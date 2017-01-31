@@ -11,6 +11,8 @@ import {
     Image
 } from 'react-native';
 
+import SearchResults from './SearchResults';
+
 const styles = StyleSheet.create({
 	description: {
 		marginBottom: 20,
@@ -59,6 +61,7 @@ const styles = StyleSheet.create({
 });
 
 export default class SearchPage extends Component {
+    
     constructor(props) {
         super(props);
         this.state = {
@@ -67,9 +70,11 @@ export default class SearchPage extends Component {
             message: ''
         };
     }
+
     onSearchTextChanged(event) {
         this.setState({ searchSTring: event.nativeEvent.text });
     }
+
     render() {
         const spinner = this.state.isLoading ?
                 ( <ActivityIndicator 
@@ -108,6 +113,7 @@ export default class SearchPage extends Component {
 			</View>
         );
     }
+
     _executeQuery(query) {
         console.log(query);
         this.setState({ isLoading: true });
@@ -120,18 +126,25 @@ export default class SearchPage extends Component {
                     message: 'Something bad happened ' + error
                 }));
     }
+
     _handleResponse(response) {
         this.setState({ isLoading: false, message: '' });
         if (response.application_response_code.substring(0, 1) === '1') {
-            console.log('Properties found: ' + response.listings.length);
+            this.props.navigator.push({
+                title: 'Results',
+                component: SearchResults,
+                passProps: {listings: response.listings}
+            });
         } else {
             this.setState({ message: 'Location not recognized; please try again.' });
         }
     }
+
     onSearchPressed() {
         const query = urlForQueryAndPage('place_name', this.state.searchString, 1);
         this._executeQuery(query);
     }
+
 }
 
 const urlForQueryAndPage = (key, value, pageNumber) => {
