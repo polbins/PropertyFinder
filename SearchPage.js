@@ -59,7 +59,21 @@ const styles = StyleSheet.create({
 });
 
 export default class SearchPage extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            searchString: 'london',
+            isLoading: false
+        };
+    }
+    onSearchTextChanged(event) {
+        this.setState({ searchSTring: event.nativeEvent.text });
+    }
     render() {
+        const spinner = this.state.isLoading ?
+                ( <ActivityIndicator 
+                    size='large'/> ) : 
+                ( <View/> );
         return (
             <View style={styles.container}>
                 <Text style={styles.description}>
@@ -71,8 +85,11 @@ export default class SearchPage extends Component {
 				<View style={styles.flowRight}>
 				  <TextInput
 					style={styles.searchInput}
+                    value={this.state.searchString}
+                    onChange={this.onSearchTextChanged.bind(this)}
 					placeholder='Search via name or postcode'/>
 				  <TouchableHighlight style={styles.button}
+                      onPress={this.onSearchPressed.bind(this)}
 					  underlayColor='#99d9f4'>
 					<Text style={styles.buttonText}>Go</Text>
 				  </TouchableHighlight>
@@ -85,8 +102,35 @@ export default class SearchPage extends Component {
                 </View>
                 <Image source={require('./Resources/house.png')} 
                     style={styles.image}/>
+                {spinner}
 			</View>
         );
     }
+    _executeQuery(query) {
+        console.log(query);
+        this.setState({ isLoading: true });
+    }
+    onSearchPressed() {
+        const query = urlForQueryAndPage('place_name', this.state.searchString, 1);
+        this._executeQuery(query);
+    }
 }
+
+const urlForQueryAndPage = (key, value, pageNumber) => {
+  var data = {
+      country: 'uk',
+      pretty: '1',
+      encoding: 'json',
+      listing_type: 'buy',
+      action: 'search_listings',
+      page: pageNumber
+  };
+  data[key] = value;
+ 
+  var querystring = Object.keys(data)
+    .map(key => key + '=' + encodeURIComponent(data[key]))
+    .join('&');
+ 
+  return 'http://api.nestoria.co.uk/api?' + querystring;
+};
 
