@@ -72,7 +72,7 @@ export default class SearchPage extends Component {
     }
 
     onSearchTextChanged(event) {
-        this.setState({ searchSTring: event.nativeEvent.text });
+        this.setState({ searchString: event.nativeEvent.text });
     }
 
     render() {
